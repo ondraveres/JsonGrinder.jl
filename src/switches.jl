@@ -19,7 +19,3 @@ const _max_len = Ref(10_000)
 """
 updatemaxlen!(n::Int) = _max_len[] = n
 max_len() = _max_len[]
-
-_merge_scalars = Ref(true)
-merge_scalars!(v::Bool) = _merge_scalars[] = v
-merge_scalars() = _merge_scalars[]
