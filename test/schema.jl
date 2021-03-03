@@ -630,7 +630,7 @@ end
 	sha1len = 40
 	shorten_suffix = 1 + 3 + 1 + sha1len
 
-	prev_len = JsonGrinder.max_len
+	prev_len = JsonGrinder.max_len()
 	JsonGrinder.updatemaxlen!(max_string_len)
 	sch = JsonGrinder.schema([j1,j2,j3,j4,j5,j6,j7])
 	@test sch[:a].counts |> keys .|> length |> maximum <= max_string_len + shorten_suffix
@@ -654,7 +654,7 @@ end
 	sha1len = 40
 	shorten_suffix = 1 + 3 + 1 + sha1len
 
-	prev_len = JsonGrinder.max_len
+	prev_len = JsonGrinder.max_len()
 	JsonGrinder.updatemaxlen!(max_string_len)
 	sch = JsonGrinder.schema([j1,j2,j3,j4,j5,j6,j7])
 	@test sch[:a].counts |> keys .|> length |> maximum <= max_string_len + shorten_suffix
