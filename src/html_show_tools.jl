@@ -12,7 +12,7 @@ HTML_COLORS = ["#4E79A7","#F28E2C","#E15759","#76B7B2","#59A14F", "#EDC949","#AF
 quantile(v::Dict{Int, Int}, p::Number) = quantile(v |> keys |> collect, v |> values |> collect |> fweights, [p])[1]
 quantile(v::Dict{Int, Int}, p::RealVector) = quantile(v |> keys |> collect, v |> values |> collect |> fweights, p)
 mean(v::Dict{Int, Int}) = mean(v |> keys |> collect, v |> values |> collect |> fweights)
-stringify(arg::Pair; max_len=1_000) = stringify(arg.first, arg.second, max_len=max_len)
+stringify(arg::Pair; max_len=1_000) = stringify(arg.first, arg.second; max_len)
 stringify(arg1::String, arg2; max_len=1_000) = isnothing(max_len) ? "$(escapeHTML(arg1)): $(arg2)" : "$(escapeHTML(first(arg1, max_len))): $(arg2)"
 stringify(arg1, arg2; max_len=1_000) = "$(arg1): $(arg2)"
 calc_filled_percent(e, parent_updated) = isnothing(parent_updated) ? "" : @sprintf ", filled=%.2f%%" (100 * e.updated / parent_updated)
@@ -27,8 +27,8 @@ function schema2html(e::Entry; pad = "", max_vals=100, max_len=1_000, parent_upd
 	c = pad_color(pad)
 	filled_percent = calc_filled_percent(e, parent_updated)
 	sorted_counts = sort(collect(e.counts), by=x->x[2], rev=true)
-	min_repr = stringify(sorted_counts[end], max_len=max_len)
-	max_repr = stringify(sorted_counts[1], max_len=max_len)
+	min_repr = stringify(sorted_counts[end]; max_len)
+	max_repr = stringify(sorted_counts[1]; max_len)
 	ret_str = """
 $pad<ul class="nested" style="color: $c">$pad[Scalar - $(join(types(e)))], $(length(keys(e.counts))) unique values,
 (updated=$(e.updated)$filled_percent, min=$min_repr, max=$max_repr)
@@ -88,7 +88,7 @@ $pad</ul>
 $pad</li>
 $pad<li><span class="caret">and data</span>
 """
-	ret_str *= schema2html(e.items, pad=pad*" "^2, max_vals=max_vals, max_len=max_len, parent_key="$parent_key.items")
+	ret_str *= schema2html(e.items, pad=pad*" "^2, parent_key="$parent_key.items"; max_vals, max_len)
 	ret_str * """
 $pad</li>
 $pad</ul>
@@ -108,7 +108,7 @@ function schema2html(e::DictEntry; pad = "", max_vals=100, max_len=1_000, parent
     for (key, val) in sort!(ordered_childs)
 		child_key = """$parent_key[$(repr(Symbol(key)))]"""
 		ret_str *= pad*" "^2 * """<li><span class="caret">$key</span> - <label>$child_key<input type="checkbox" name="$(escapeHTML(child_key))" value="$(escapeHTML(child_key))"></label>\n"""
-		ret_str *= schema2html(val, pad=pad*" "^4, max_vals=max_vals, max_len=max_len, parent_updated=e.updated, parent_key=child_key)
+		ret_str *= schema2html(val, pad=pad*" "^4, parent_updated=e.updated, parent_key=child_key; max_vals, max_len)
 		ret_str *= pad*" "^2 * "</li>\n"
 		i += 1
 		if !isnothing(max_vals) && i == max_vals && length(ordered_childs) > max_vals
@@ -127,7 +127,7 @@ function schema2html(e::MultiEntry; pad = "", max_vals=100, max_len=1_000, paren
     for (key, val) in enumerate(e.childs)
 		child_key = """$parent_key["$key"]"""
 		ret_str *= pad*" "^2 * """<li><span class="caret">$key</span> - <label>$child_key<input type="checkbox" name="$(escapeHTML(child_key))" value="$(escapeHTML(child_key))"></label>\n"""
-		ret_str *= schema2html(val, pad=pad*" "^4, max_vals=max_vals, max_len=max_len, parent_updated=e.updated, parent_key=child_key)
+		ret_str *= schema2html(val, pad=pad*" "^4, parent_updated=e.updated, parent_key=child_key; max_vals, max_len)
 		ret_str *= pad*" "^2 * "</li>\n"
 		i += 1
 		if !isnothing(max_vals) && i == max_vals && length(e.childs) > max_vals
@@ -248,13 +248,13 @@ document.getElementById("copy_clipboard").addEventListener("click", () => {
 """
 
 	d = Dict(
-		"list_dump" => schema2html(sch, max_vals=max_vals, max_len=max_len),
+		"list_dump" => schema2html(sch; max_vals, max_len),
 	)
 	return render(tpl, d)
 end
 
 function generate_html(file_name, sch::DictEntry; max_vals=100, max_len=1_000)
-	s = generate_html(sch; max_vals=max_vals, max_len=max_len)
+	s = generate_html(sch; max_vals, max_len)
 	open(file_name, "w") do f
  		write(f, s)
 	end

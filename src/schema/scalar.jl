@@ -39,7 +39,7 @@ is_int_entry(e) = is_numeric_entry(e, Integer)
 is_float_entry(e) = is_numeric_entry(e, AbstractFloat)
 
 shorten_if_str(v) = v
-shorten_if_str(v::AbstractString) = length(v) > max_len ? "$(first(v, max_len))_$(length(v))_$(bytes2hex(sha1(v)))" : v
+shorten_if_str(v::AbstractString) = length(v) > max_len() ? "$(first(v, max_len()))_$(length(v))_$(bytes2hex(sha1(v)))" : v
 
 # Real is the closest supertype of AbstractFloat and Integer
 is_numeric_or_numeric_string(e) = is_intable(e) || is_floatable(e) || is_numeric_entry(e, Real)
@@ -55,7 +55,7 @@ update!(a::Entry{T}, s::AbstractString; path = "") where {T<:Number} = false
 
 function _update!(a::Entry, v)
 	v = shorten_if_str(v)
-	if length(keys(a.counts)) < max_keys
+	if length(keys(a.counts)) < max_keys()
 		a.counts[v] = get(a.counts,v,0) + 1
 		# it's there because otherwise, after filling the count keys not even the existing ones are updates
 	elseif haskey(a.counts, v)
@@ -76,15 +76,15 @@ function merge(es::Entry...)
 	if length(entry_types) > 1
 		multi_entry = MultiEntry([], updates_merged)
 		other_entries = filter(e->!(e isa MultiEntry), es)
-		# merging here also takes care of max_keys, which is not done for multi-entries
+		# merging here also takes care of max_keys(), which is not done for multi-entries
 		merged_entries = [merge(filter(x->x isa t, other_entries)...) for t in entry_types]
 		multi_entry.childs = merged_entries
 		multi_entry
 	else
 		counts_merged = merge(+, counts.(es)...)
-		if length(counts_merged) > max_keys
+		if length(counts_merged) > max_keys()
 			counts_merged_list = sort(collect(counts_merged), by=x->x[2], rev=true)
-			counts_merged = Dict(counts_merged_list[1:max_keys])
+			counts_merged = Dict(counts_merged_list[1:max_keys()])
 		end
 		Entry(counts_merged, updates_merged)
 	end
@@ -94,9 +94,9 @@ function merge_inplace!(e::Entry, es::Entry...)
 	es = [e; es...]
 	updates_merged = sum(updated.(es))
 	counts_merged = merge(+, counts.(es)...)
-	if length(counts_merged) > max_keys
+	if length(counts_merged) > max_keys()
 		counts_merged_list = sort(collect(counts_merged), by=x->x[2], rev=true)
-		counts_merged = Dict(counts_merged_list[1:max_keys])
+		counts_merged = Dict(counts_merged_list[1:max_keys()])
 	end
 	e.counts = counts_merged
 	e.updated = updates_merged
