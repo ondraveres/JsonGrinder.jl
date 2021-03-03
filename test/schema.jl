@@ -313,7 +313,7 @@ end
 	j10 = JSON.parse("""{"a": [{"a":11,"b":12},{"b":13,"a":14}], "b":2}""")
 	j11 = JSON.parse("""{"a": [{"a":7,"b":5},{"b":6,"a":6}], "b":2}""")
 
-	prev_keys = JsonGrinder.max_keys
+	prev_keys = JsonGrinder.max_keys()
 	JsonGrinder.updatemaxkeys!(6)
 	# todo: test how newentry works with array with multiple elements
 	sch1 = JsonGrinder.schema([j1,j2,j3,j4,j5,j11])
@@ -604,7 +604,7 @@ end
 	j10 = JSON.parse("""{"a": [{"a":11,"b":12},{"b":13,"a":"14"}], "b":"3"}""")
 	j11 = JSON.parse("""{"a": [{"a":7,"b":5},{"b":6,"a":"6"}], "b":"4"}""")
 
-	prev_keys = JsonGrinder.max_keys
+	prev_keys = JsonGrinder.max_keys()
 	JsonGrinder.updatemaxkeys!(4)
 	# todo: otestovat jak funguje newentry s víceprvkovám polem
 	sch1 = JsonGrinder.schema([j1,j2,j3,j4,j5,j11])
