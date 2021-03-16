@@ -12,15 +12,15 @@ Represents `String` as `n-`grams (`NGramMatrix` from `Mill.jl`) with base `b` an
 # Example
 ```jldoctest
 julia> ExtractString()("hello")
-2053×1 Mill.ArrayNode{Mill.NGramMatrix{String,Int64},Nothing}:
+2053×1 Mill.ArrayNode{Mill.NGramMatrix{String,Array{String,1},Int64},Nothing}:
  "hello"
 
 julia> ExtractString()(missing)
-2053×1 Mill.ArrayNode{Mill.NGramMatrix{Missing,Missing},Nothing}:
+2053×1 Mill.ArrayNode{Mill.NGramMatrix{Missing,Array{Missing,1},Missing},Nothing}:
  missing
 
 julia> ExtractString()(["hello", "world"])
-2053×2 Mill.ArrayNode{Mill.NGramMatrix{String,Int64},Nothing}:
+2053×2 Mill.ArrayNode{Mill.NGramMatrix{String,Array{String,1},Int64},Nothing}:
  "hello"
  "world"
 ```
@@ -59,7 +59,7 @@ extracts number subtracting `m` and multiplying by `s`
 # Example
 ```jldoctest
 julia> JsonGrinder.extractscalar(String, 3, 256, 2053)("5")
-2053×1 Mill.ArrayNode{Mill.NGramMatrix{String,Int64},Nothing}:
+2053×1 Mill.ArrayNode{Mill.NGramMatrix{String,Array{String,1},Int64},Nothing}:
  "5"
 
 julia> JsonGrinder.extractscalar(Int32, 3, 256)("5")

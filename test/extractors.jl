@@ -396,9 +396,9 @@ end
 	@test e(Symbol("Hello")).data.s == ["Hello"]
 	@test e(["Hello", "world"]).data.s == ["Hello", "world"]
 	@test all(e(missing).data.s .=== [missing])
-	@test ehello isa ArrayNode{NGramMatrix{String,Int64},Nothing}
-	@test ehello.data isa NGramMatrix{String,Int64}
-	@test e(missing).data isa NGramMatrix{Missing,Missing}
+	@test ehello isa ArrayNode{NGramMatrix{String,Vector{String},Int64},Nothing}
+	@test ehello.data isa NGramMatrix{String,Vector{String},Int64}
+	@test e(missing).data isa NGramMatrix{Missing,Vector{Missing},Missing}
 	@test isnothing(ehello.metadata)
 	@test ehellos.metadata == ["Hello"]
 	@test nobs(e(extractempty)) == 0
@@ -430,11 +430,11 @@ end
 	b = ext(nothing)
 	@test nobs(b) == 1
 	@test nobs(b.data) == 0
-	@test b.data[:key].data isa Mill.NGramMatrix{String,Int64}
+	@test b.data[:key].data isa Mill.NGramMatrix{String,Vector{String},Int64}
 	b = ext(Dict())
 	@test nobs(b) == 1
 	@test nobs(b.data) == 0
-	@test b.data[:key].data isa Mill.NGramMatrix{String,Int64}
+	@test b.data[:key].data isa Mill.NGramMatrix{String,Vector{String},Int64}
 
 	Mill.emptyismissing!(orig_emptyismissing)
 
@@ -444,7 +444,7 @@ end
 	@test nobs(b.data[:item]) == 0
 	@test b.data[:item].data isa Matrix{Float32}
 	@test nobs(b.data[:key]) == 0
-	@test b.data[:key].data isa Mill.NGramMatrix{String,Int64}
+	@test b.data[:key].data isa Mill.NGramMatrix{String,Vector{String},Int64}
 
 
 	js = [Dict(randstring(5) => Dict(:a => rand(), :b => randstring(1))) for _ in 1:1000]

@@ -21,7 +21,7 @@ ProductNode with 1 obs
   └── e2: ArrayNode(4×1 MaybeHotMatrix with Bool elements) with 1 obs
 
 julia> s1[:e1]
-2053×1 Mill.ArrayNode{Mill.NGramMatrix{String,Int64},Nothing}:
+2053×1 Mill.ArrayNode{Mill.NGramMatrix{String,Array{String,1},Int64},Nothing}:
  "tcp"
 
 julia> s1[:e2]
@@ -37,7 +37,7 @@ ProductNode with 1 obs
   └── e2: ArrayNode(4×1 MaybeHotMatrix with Bool elements) with 1 obs
 
 julia> s2[:e1]
-2053×1 Mill.ArrayNode{Mill.NGramMatrix{String,Int64},Nothing}:
+2053×1 Mill.ArrayNode{Mill.NGramMatrix{String,Array{String,1},Int64},Nothing}:
  "http"
 
 julia> s2[:e2]
@@ -63,7 +63,7 @@ ProductNode with 1 obs
   └── e2: ArrayNode(1×1 Array with Float32 elements) with 1 obs
 
 julia> s1[:e1]
-2053×1 Mill.ArrayNode{Mill.NGramMatrix{Missing,Missing},Nothing}:
+2053×1 Mill.ArrayNode{Mill.NGramMatrix{Missing,Array{Missing,1},Missing},Nothing}:
  missing
 
 julia> s1[:e2]
@@ -76,7 +76,7 @@ ProductNode with 1 obs
   └── e2: ArrayNode(1×1 Array with Missing elements) with 1 obs
 
 julia> s2[:e1]
-2053×1 Mill.ArrayNode{Mill.NGramMatrix{String,Int64},Nothing}:
+2053×1 Mill.ArrayNode{Mill.NGramMatrix{String,Array{String,1},Int64},Nothing}:
  "hi"
 
 julia> s2[:e2]
