@@ -1,4 +1,4 @@
-
+using BSON: BSONDict
 """
 		newentry(v)
 
@@ -40,3 +40,5 @@ end
 schema(map_fun::Function, samples::AbstractArray) = schema(samples, map_fun)
 schema(samples::AbstractArray{T}) where {T<:Dict} = schema(samples, identity)
 schema(samples::AbstractArray{T}) where {T<:AbstractString} = schema(samples, JSON.parse)
+# BSON integration
+schema(samples::AbstractArray{<:BSONDict}) = schema(samples, identity)
