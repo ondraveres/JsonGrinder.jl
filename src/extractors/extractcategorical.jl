@@ -53,14 +53,14 @@ julia> e(missing).data
 julia> e = ExtractCategorical(2:4, false);
 
 julia> e([2,3,1,4]).data
-4×4 Mill.MaybeHotMatrix{Int64, Int64, Bool}:
+4×4 Flux.OneHotArray{4,2,Vector{Int64}}:
  1  0  0  0
  0  1  0  0
  0  0  0  1
  0  0  1  0
 
 julia> e(4).data
-4×1 Mill.MaybeHotMatrix{Int64, Int64, Bool}:
+4×1 Flux.OneHotArray{4,2,Vector{Int64}}:
  0
  0
  1
