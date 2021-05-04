@@ -451,15 +451,6 @@ end
 	@test typeof(e(["a", "b"]).data) == MaybeHotMatrix{Union{Missing, Int64}, Int64, Union{Missing, Bool}}
 	@test typeof(e(["a", "b", nothing]).data) == MaybeHotMatrix{Union{Missing, Int64}, Int64, Union{Missing, Bool}}
 
-	@test isnothing(ExtractCategorical([], true))
-	e2 = ExtractCategorical(JsonGrinder.Entry(Dict("a"=>1,"c"=>1), 2), true)
-	@test e2.uniontypes == true
-	@test e2("a").data ≈ [1, 0, 0]
-	@test e2("c").data ≈ [0, 1, 0]
-	@test e2("b").data ≈ [0, 0, 1]
-	@test e2(nothing).data ≃ [missing missing missing]'
-	@test e2(missing).data ≃ [missing missing missing]'
-
 	@test catobs(ea, eb).data ≈ [1 0; 0 1; 0 0]
 	@test reduce(catobs, [ea.data, eb.data]) ≈ [1 0; 0 1; 0 0]
 	@test hcat(ea.data, eb.data) ≈ [1 0; 0 1; 0 0]
@@ -481,6 +472,15 @@ end
 	@test nobs(e([missing, nothing])) == 2
 	@test nobs(e([missing, nothing, "a"])) == 3
 
+	@test isnothing(ExtractCategorical([], true))
+	e2 = ExtractCategorical(JsonGrinder.Entry(Dict("a"=>1,"c"=>1), 2), true)
+	@test e2.uniontypes == true
+	@test e2("a").data ≈ [1, 0, 0]
+	@test e2("c").data ≈ [0, 1, 0]
+	@test e2("b").data ≈ [0, 0, 1]
+	@test e2(nothing).data ≃ [missing missing missing]'
+	@test e2(missing).data ≃ [missing missing missing]'
+	
 	e3 = ExtractCategorical(JsonGrinder.Entry(Dict(1=>1,2=>1), 2), true)
 	@test e3.uniontypes == true
 	@test e3(1).data ≈ [1, 0, 0]
