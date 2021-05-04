@@ -104,17 +104,15 @@ make_missing_categorical(s::ExtractCategorical, v, store_input) =
     error("This extractor does not support missing values")
 
 (s::ExtractCategorical{V,I})(v::V; store_input=false) where {V,I} =
-	_make_array_node(constructor(val2idx(s, v), s.n), [v], store_input)
+	_make_array_node(construct(s, val2idx(s, v), s.n), [v], store_input)
 (s::ExtractCategorical{V,I})(vs::Vector{V}; store_input=false) where {V,I} =
-	_make_array_node(constructor(val2idx(s, vs), s.n), [vs], store_input)
-
+	_make_array_node(construct(s, val2idx(s, vs), s.n), [vs], store_input)
 
 # following 2 methods are to let us extract float from int extractor and vice versa
-(s::ExtractCategorical{<:Number,I})(v::Number; store_input=false) where {I}
+(s::ExtractCategorical{<:Number,I})(v::Number; store_input=false) where {I} =
 	_make_array_node(construct(s, val2idx(s, v), s.n), [v], store_input)
 (s::ExtractCategorical{<:Number,I})(vs::Vector{<:Number}; store_input=false) where {I} = 
 	_make_array_node(construct(s, val2idx(s, vs), s.n), [vs], store_input)
-
 
 # following 2 methods are to let us extract numeric string from float or int extractor
 # I'm trying to parse as float because integer can be parsed as float so I assume all numbers we care about
