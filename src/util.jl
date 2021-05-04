@@ -18,7 +18,7 @@ lens2code(n::Union{AbstractExtractor, JSONEntry}, l::Lens) = HierarchicalUtils.f
 
 Base.reduce(::typeof(catobs), a::Vector{<:OneHotMatrix}) = _catobs(a[:])
 catobs(a::OneHotMatrix...) = _catobs(collect(a))
-_catobs(a::AbstractArray{<:OneHotMatrix}) = OneHotMatrix(a[1].height,reduce(vcat, [i.data for i in a]))
+_catobs(a::AbstractArray{<:OneHotMatrix}) = hcat(a...)
 
 # function schema_lens(model, lens::ComposedLens)
 #     outerlens = schema_lens(model, lens.outer)

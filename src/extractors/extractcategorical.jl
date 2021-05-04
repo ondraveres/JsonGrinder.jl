@@ -1,3 +1,4 @@
+import Flux: OneHotMatrix
 import Mill: ArrayNode, MaybeHotMatrix
 """
 	struct ExtractCategorical{V,I} <: AbstractExtractor
@@ -101,30 +102,46 @@ make_missing_categorical(s::ExtractCategorical, v, store_input) =
     _make_array_node(MaybeHotMatrix(stabilize_types_categorical(s, [missing]), s.n), [v], store_input) :
     error("This extractor does not support missing values")
 
-(s::ExtractCategorical{V,I})(v::V; store_input=false) where {V,I} =
-	_make_array_node(MaybeHotMatrix(val2idx(s, v), s.n), [v], store_input)
-(s::ExtractCategorical{V,I})(vs::Vector{V}; store_input=false) where {V,I} =
-	_make_array_node(MaybeHotMatrix(val2idx(s, vs), s.n), [vs], store_input)
+function (s::ExtractCategorical{V,I})(v::V; store_input=false) where {V,I}
+	constructor = s.uniontypes ? MaybeHotMatrix : OneHotMatrix
+	_make_array_node(constructor(val2idx(s, v), s.n), [v], store_input)
+end
+function (s::ExtractCategorical{V,I})(vs::Vector{V}; store_input=false) where {V,I}
+	constructor = s.uniontypes ? MaybeHotMatrix : OneHotMatrix
+	_make_array_node(constructor(val2idx(s, vs), s.n), [vs], store_input)
+end
 
 # following 2 methods are to let us extract float from int extractor and vice versa
-(s::ExtractCategorical{<:Number,I})(v::Number; store_input=false) where {I} =
-	_make_array_node(MaybeHotMatrix(val2idx(s, v), s.n), [v], store_input)
-(s::ExtractCategorical{<:Number,I})(vs::Vector{<:Number}; store_input=false) where {I} =
-	_make_array_node(MaybeHotMatrix(val2idx(s, vs), s.n), [vs], store_input)
+function (s::ExtractCategorical{<:Number,I})(v::Number; store_input=false) where {I}
+	constructor = s.uniontypes ? MaybeHotMatrix : OneHotMatrix
+	_make_array_node(constructor(val2idx(s, v), s.n), [v], store_input)
+end
+function (s::ExtractCategorical{<:Number,I})(vs::Vector{<:Number}; store_input=false) where {I}
+	constructor = s.uniontypes ? MaybeHotMatrix : OneHotMatrix
+	_make_array_node(constructor(val2idx(s, vs), s.n), [vs], store_input)
+end
 
 # following 2 methods are to let us extract numeric string from float or int extractor
 # I'm trying to parse as float because integer can be parsed as float so I assume all numbers we care about
 # are "floatable". Yes, this does not work for
-(s::ExtractCategorical{<:Number,I})(v::AbstractString; store_input=false) where {I} =
-	_make_array_node(MaybeHotMatrix(val2idx(s, tryparse(FloatType, v)), s.n), [v], store_input)
-(s::ExtractCategorical{<:Number,I})(vs::Vector{<:AbstractString}; store_input=false) where {I} =
-	_make_array_node(MaybeHotMatrix(val2idx(s, tryparse.(FloatType, vs)), s.n), [vs], store_input)
-(s::ExtractCategorical{V,I})(vs::Vector{<:Union{V, Missing, Nothing}}; store_input=false) where {V,I} =
-	_make_array_node(MaybeHotMatrix(val2idx(s, vs), s.n), [vs], store_input)
+function (s::ExtractCategorical{<:Number,I})(v::AbstractString; store_input=false) where {I}
+	constructor = s.uniontypes ? MaybeHotMatrix : OneHotMatrix
+	_make_array_node(constructor(val2idx(s, tryparse(FloatType, v)), s.n), [v], store_input)
+end
+function (s::ExtractCategorical{<:Number,I})(vs::Vector{<:AbstractString}; store_input=false) where {I}
+	constructor = s.uniontypes ? MaybeHotMatrix : OneHotMatrix
+	_make_array_node(constructor(val2idx(s, tryparse.(FloatType, vs)), s.n), [vs], store_input)
+end
+function (s::ExtractCategorical{V,I})(vs::Vector{<:Union{V, Missing, Nothing}}; store_input=false) where {V,I}
+	constructor = s.uniontypes ? MaybeHotMatrix : OneHotMatrix
+	_make_array_node(constructor(val2idx(s, vs), s.n), [vs], store_input)
+end
 (s::ExtractCategorical)(v::MissingOrNothing; store_input=false) = make_missing_categorical(s, v, store_input)
-
-(s::ExtractCategorical{V,I})(::ExtractEmpty; store_input=false) where {V,I} =
-	ArrayNode(MaybeHotMatrix(s.uniontypes ? Vector{Union{Missing, I}}() : Vector{I}(), s.n))
+# todo: tohle všechno pořádně otestovat
+function (s::ExtractCategorical{V,I})(::ExtractEmpty; store_input=false) where {V,I}
+	constructor = s.uniontypes ? MaybeHotMatrix : OneHotMatrix
+	ArrayNode(constructor(s.uniontypes ? Vector{Union{Missing, I}}() : Vector{I}(), s.n))
+end
 (s::ExtractCategorical)(v; store_input=false) = make_missing_categorical(s, v, store_input)
 
 Base.hash(e::ExtractCategorical, h::UInt) = hash((e.keyvalemap, e.n, e.uniontypes), h)
