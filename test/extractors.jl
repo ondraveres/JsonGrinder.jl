@@ -445,11 +445,16 @@ end
 	@test e(extractempty).data isa MaybeHotMatrix{Union{Missing, Int64}, Int64, Union{Missing, Bool}}
 	@test nobs(e(extractempty)) == 0
 
-	@test e(["a", "b"]).data ≈ [1 0; 0 1; 0 0]
-	@test e(["a", missing]).data ≃ [true missing; false missing; false missing]
-	@test e(["a", missing, "x"]).data ≃ [true missing false; false missing false; false missing true]
+	@test e(["a", "b"]).data ≃ [missing missing missing]'
+	@test mapreduce(e, catobs, ["a", "b"]).data ≈ [1 0; 0 1; 0 0]
+	@test e(["a", missing]).data ≃ [missing missing missing]'
+	@test mapreduce(e, catobs, ["a", missing]).data ≃ [true missing; false missing; false missing]
+	@test e(["a", missing, "x"]).data ≃ [missing missing missing]'
+	@test mapreduce(e, catobs, ["a", missing, "x"]).data ≃ [true missing false; false missing false; false missing true]
 	@test typeof(e(["a", "b"]).data) == MaybeHotMatrix{Union{Missing, Int64}, Int64, Union{Missing, Bool}}
+	@test typeof(mapreduce(e, catobs, ["a", "b"]).data) == MaybeHotMatrix{Union{Missing, Int64}, Int64, Union{Missing, Bool}}
 	@test typeof(e(["a", "b", nothing]).data) == MaybeHotMatrix{Union{Missing, Int64}, Int64, Union{Missing, Bool}}
+	@test typeof(mapreduce(e, catobs, ["a", "b", nothing]).data) == MaybeHotMatrix{Union{Missing, Int64}, Int64, Union{Missing, Bool}}
 
 	@test catobs(ea, eb).data ≈ [1 0; 0 1; 0 0]
 	@test reduce(catobs, [ea.data, eb.data]) ≈ [1 0; 0 1; 0 0]
@@ -469,8 +474,10 @@ end
 	@test nobs(en) == 1
 	@test nobs(em) == 1
 	@test nobs(em.data) == 1
-	@test nobs(e([missing, nothing])) == 2
-	@test nobs(e([missing, nothing, "a"])) == 3
+	@test nobs(e([missing, nothing])) == 1
+	@test nobs(mapreduce(e, catobs, [missing, nothing])) == 2
+	@test nobs(e([missing, nothing, "a"])) == 1
+	@test nobs(mapreduce(e, catobs, [missing, nothing, "a"])) == 3
 
 	@test isnothing(ExtractCategorical([], true))
 	e2 = ExtractCategorical(JsonGrinder.Entry(Dict("a"=>1,"c"=>1), 2), true)
@@ -512,10 +519,12 @@ end
 	@test e(extractempty).data isa OneHotMatrix{Int64, 3, Vector{Int64}}
 	@test nobs(e(extractempty)) == 0
 
-	@test e(["a", "b"]).data ≈ [1 0; 0 1; 0 0]
+	@test mapreduce(e, catobs, ["a", "b"]).data ≈ [1 0; 0 1; 0 0]
+	@test_throws ErrorException e(["a", "b"]).data
 	@test_throws ErrorException e(["a", missing])
 	@test_throws ErrorException e(["a", missing, "x"])
-	@test typeof(e(["a", "b"]).data) == OneHotMatrix{Int64, 3, Vector{Int64}}
+	@test_throws ErrorException typeof(e(["a", "b"]).data)
+	@test typeof(mapreduce(e, catobs, ["a", "b"]).data) == OneHotMatrix{Int64, 3, Vector{Int64}}
 	@test_throws ErrorException e(["a", "b", nothing])
 
 	@test isnothing(ExtractCategorical([], false))
@@ -585,9 +594,11 @@ end
 	@test ehello.data.s == ["Hello"]
 	@test ehello.data == ehellos.data
 	@test e(Symbol("Hello")).data.s == ["Hello"]
-	@test e(["Hello", "world"]).data.s == ["Hello", "world"]
-	@test all(e(missing).data.s .=== [missing])
-	@test all(e(nothing).data.s .=== [missing])
+	@test e(["Hello", "world"]).data.s ≃ [missing]
+	@test mapreduce(e, catobs, ["Hello", "world"]).data.s == ["Hello", "world"]
+	
+	@test e(missing).data.s ≃ [missing]
+	@test e(nothing).data.s ≃ [missing]
 	@test isequal(e(Dict(1=>2)), e(missing))
 	@test ehello isa ArrayNode{NGramMatrix{Union{Missing, String},Vector{Union{Missing, String}},Union{Missing, Int64}},Nothing}
 	@test ehello.data isa NGramMatrix{Union{Missing, String},Vector{Union{Missing, String}},Union{Missing, Int64}}
@@ -599,7 +610,8 @@ end
 	e = ExtractString(false)
 	@test e("Hello").data.s == ["Hello"]
 	@test e(Symbol("Hello")).data.s == ["Hello"]
-	@test e(["Hello", "world"]).data.s == ["Hello", "world"]
+	@test_throws ErrorException e(["Hello", "world"]).data.s
+	@test mapreduce(e, catobs, ["Hello", "world"]).data.s == ["Hello", "world"]
 	@test_throws ErrorException e(missing)
 	@test_throws ErrorException e(nothing)
 	@test_throws ErrorException e(Dict(1=>2))
